@@ -1,0 +1,5 @@
+flowchart LR
+    Runtime["Dreamine.Gem300"] --> Contracts["Dreamine.Gem300.Abstractions"]
+    Runtime --> GemContracts["Dreamine.Gem.Abstractions"]
+    Runtime --> Modules["Object / Carrier / Substrate / Jobs"]
+    Modules --> Events["Bounded Domain Event Journal"]

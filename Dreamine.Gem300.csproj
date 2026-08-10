@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <AssemblyName>Dreamine.Gem300</AssemblyName><RootNamespace>Dreamine.Gem300</RootNamespace>
+    <PackageId>Dreamine.Gem300</PackageId><Version>1.0.0</Version><Authors>Dreamine Core Team</Authors><Company>Dreamine</Company>
+    <Description>Dreamine implementation boundary for future independent GEM300 capability modules.</Description>
+    <PackageTags>dreamine;gem300;gem;runtime;equipment</PackageTags><PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/CodeMaru-Dreamine/Dreamine.Gem300</RepositoryUrl><Title>Dreamine.Gem300</Title>
+    <Copyright>© 2026 Dreamine Core Team. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/CodeMaru-Dreamine/Dreamine.Gem300</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile><PackageIcon>icon.png</PackageIcon>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild><GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup><None Include="README.md" Pack="true" PackagePath="\" /><None Include="icon.png" Pack="true" PackagePath="\" /></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Gem300.Abstractions\Dreamine.Gem300.Abstractions.csproj" />
+    <ProjectReference Include="..\Gem.Abstractions\Dreamine.Gem.Abstractions.csproj" />
+  </ItemGroup>
+</Project>
