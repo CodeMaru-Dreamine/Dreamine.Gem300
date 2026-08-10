@@ -40,6 +40,21 @@ public sealed class CarrierManagerTests
     }
 
     [Fact]
+    public void UndefinedAccessModeAndSlotStateAreRejected()
+    {
+        var manager = new CarrierManager(new Gem300EventJournal());
+        Assert.Throws<ArgumentOutOfRangeException>(() => manager.RegisterLoadPort("BAD", (LoadPortAccessMode)999));
+
+        manager.RegisterLoadPort("P1");
+        manager.SetInService("P1");
+        Assert.Throws<ArgumentOutOfRangeException>(() => manager.ChangeAccessMode("P1", (LoadPortAccessMode)999));
+        manager.Bind("P1", "C1", 1);
+        manager.BeginLoad("P1");
+        manager.CompleteLoad("P1");
+        Assert.Throws<ArgumentException>(() => manager.WaitForSlotMapDecision("C1", [(CarrierSlotState)999]));
+    }
+
+    [Fact]
     public void PrematureUnloadCompletionIsRejected()
     {
         var manager = CreateLoadedCarrier(); Assert.Throws<InvalidOperationException>(() => manager.CompleteUnload("P1"));

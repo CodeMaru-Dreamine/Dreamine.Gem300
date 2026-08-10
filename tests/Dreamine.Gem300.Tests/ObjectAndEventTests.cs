@@ -38,6 +38,14 @@ public sealed class ObjectAndEventTests
     }
 
     [Fact]
+    public void EventJournalRejectsUndefinedEventKind()
+    {
+        var journal = new Gem300EventJournal();
+        Assert.Throws<ArgumentOutOfRangeException>(() => journal.Record((Gem300EventKind)999, "A1"));
+        Assert.Empty(journal.GetSnapshot());
+    }
+
+    [Fact]
     public void ConcurrentObjectUpdatesRemainTypedAndObservable()
     {
         var journal = new Gem300EventJournal(capacity: 1000); var service = new Gem300ObjectService(journal); var key = new Gem300ObjectKey("Counter", "1");
@@ -55,5 +63,33 @@ public sealed class ObjectAndEventTests
         var completion = new TaskCompletionSource<GemCommandResult>(TaskCreationOptions.RunContinuationsAsynchronously); service.RegisterAction(key, "Wait", (_, _) => new(completion.Task));
         var waiting = service.ExecuteActionAsync(key, "Wait", new Dictionary<string, SecsItem>(), TimeSpan.FromSeconds(5)).AsTask(); time.Advance(TimeSpan.FromSeconds(5));
         Assert.Equal(GemCommandStatus.Failed, (await waiting).Status);
+    }
+
+    [Fact]
+    public async Task ObjectActionReceivesStableReadOnlyParameterSnapshot()
+    {
+        var service = new Gem300ObjectService(new Gem300EventJournal());
+        var key = new Gem300ObjectKey("Carrier", "C1");
+        service.Register(key, []);
+        var entered = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        IReadOnlyDictionary<string, SecsItem>? observed = null;
+        service.RegisterAction(key, "Assign", async (parameters, cancellationToken) =>
+        {
+            entered.TrySetResult();
+            await release.Task.WaitAsync(cancellationToken);
+            observed = parameters;
+            return new GemCommandResult(GemCommandStatus.Completed);
+        });
+        var callerOwned = new Dictionary<string, SecsItem>(StringComparer.Ordinal) { ["PORT"] = new SecsAsciiItem("P1") };
+
+        var execution = service.ExecuteActionAsync(key, "Assign", callerOwned, TimeSpan.FromSeconds(5)).AsTask();
+        await entered.Task;
+        callerOwned["PORT"] = new SecsAsciiItem("P2");
+        release.TrySetResult();
+
+        Assert.Equal(GemCommandStatus.Completed, (await execution).Status);
+        Assert.Equal("P1", Assert.IsType<SecsAsciiItem>(observed!["PORT"]).Value);
+        Assert.Throws<NotSupportedException>(() => ((IDictionary<string, SecsItem>)observed).Add("EXTRA", new SecsAsciiItem("X")));
     }
 }

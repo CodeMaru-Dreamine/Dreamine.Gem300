@@ -69,9 +69,10 @@ public sealed class Gem300ObjectService : IGem300ObjectService
         if (!_objects.TryGetValue(key, out var entry)) throw new KeyNotFoundException("The object is not registered.");
         Func<IReadOnlyDictionary<string, SecsItem>, CancellationToken, ValueTask<GemCommandResult>> handler;
         lock (entry.Gate) if (!entry.Actions.TryGetValue(actionName, out handler!)) return new(Dreamine.Gem.Abstractions.States.GemCommandStatus.NotAllowed, "Unknown object action.");
+        var parameterSnapshot = new ReadOnlyDictionary<string, SecsItem>(new Dictionary<string, SecsItem>(parameters, StringComparer.Ordinal));
         try
         {
-            var result = await handler(parameters, cancellationToken).AsTask().WaitAsync(timeout, _timeProvider, cancellationToken).ConfigureAwait(false) ?? new(Dreamine.Gem.Abstractions.States.GemCommandStatus.Failed, "The object action returned no result.");
+            var result = await handler(parameterSnapshot, cancellationToken).AsTask().WaitAsync(timeout, _timeProvider, cancellationToken).ConfigureAwait(false) ?? new(Dreamine.Gem.Abstractions.States.GemCommandStatus.Failed, "The object action returned no result.");
             _events.Record(Gem300EventKind.ObjectChanged, key.ObjectId); return result;
         }
         catch (TimeoutException) { return new(Dreamine.Gem.Abstractions.States.GemCommandStatus.Failed, "The object action timed out."); }

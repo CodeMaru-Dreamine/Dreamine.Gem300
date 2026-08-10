@@ -13,6 +13,11 @@
   </PropertyGroup>
   <ItemGroup><None Include="README.md" Pack="true" PackagePath="\" /><None Include="icon.png" Pack="true" PackagePath="\" /></ItemGroup>
   <ItemGroup>
+    <Compile Remove="samples\**\*.cs" />
+    <EmbeddedResource Remove="samples\**\*" />
+    <None Remove="samples\**\*" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Gem300.Abstractions\Dreamine.Gem300.Abstractions.csproj" />
     <ProjectReference Include="..\Gem.Abstractions\Dreamine.Gem.Abstractions.csproj" />
   </ItemGroup>

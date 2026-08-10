@@ -49,7 +49,7 @@ public sealed class SubstrateTracker : ISubstrateTracker
     /// <inheritdoc />
     public void CompleteProcessing(string substrateId, SubstrateProcessingState result)
     {
-        if (result is SubstrateProcessingState.NeedsProcessing or SubstrateProcessingState.InProcess or SubstrateProcessingState.Lost) throw new ArgumentOutOfRangeException(nameof(result));
+        if (!Enum.IsDefined(result) || result is SubstrateProcessingState.NeedsProcessing or SubstrateProcessingState.InProcess or SubstrateProcessingState.Lost) throw new ArgumentOutOfRangeException(nameof(result));
         Update(substrateId, entry => { Require(entry.Processing == SubstrateProcessingState.InProcess || result == SubstrateProcessingState.Skipped && entry.Processing == SubstrateProcessingState.NeedsProcessing, "The substrate is not in a compatible processing state."); entry.Processing = result; });
     }
     /// <inheritdoc />

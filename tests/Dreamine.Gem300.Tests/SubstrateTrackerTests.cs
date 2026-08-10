@@ -42,6 +42,16 @@ public sealed class SubstrateTrackerTests
     }
 
     [Fact]
+    public void UndefinedProcessingResultIsRejected()
+    {
+        var tracker = new SubstrateTracker(new Gem300EventJournal());
+        tracker.Register("S1", "SRC", "DST");
+        tracker.BeginProcessing("S1");
+        Assert.Throws<ArgumentOutOfRangeException>(() => tracker.CompleteProcessing("S1", (SubstrateProcessingState)999));
+        Assert.Equal(SubstrateProcessingState.InProcess, tracker.Get("S1").ProcessingState);
+    }
+
+    [Fact]
     public void LostSubstrateReleasesLocationAndCannotMove()
     {
         var tracker = new SubstrateTracker(new Gem300EventJournal()); tracker.Register("S1", "SRC", "DST"); tracker.MarkLost("S1");

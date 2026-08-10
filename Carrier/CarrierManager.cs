@@ -17,6 +17,7 @@ public sealed class CarrierManager : ICarrierManager
     public void RegisterLoadPort(string portId, LoadPortAccessMode accessMode = LoadPortAccessMode.Automatic)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(portId);
+        if (!Enum.IsDefined(accessMode)) throw new ArgumentOutOfRangeException(nameof(accessMode));
         lock (_gate) if (!_ports.TryAdd(portId, new(portId, accessMode))) throw new InvalidOperationException("The load port is already registered.");
         ChangedPort(portId);
     }
@@ -35,6 +36,7 @@ public sealed class CarrierManager : ICarrierManager
     /// <inheritdoc />
     public void ChangeAccessMode(string portId, LoadPortAccessMode accessMode)
     {
+        if (!Enum.IsDefined(accessMode)) throw new ArgumentOutOfRangeException(nameof(accessMode));
         lock (_gate) { var port = Port(portId); Require(port.CarrierId is null && port.Reservation == LoadPortReservationState.NotReserved && port.Transfer != LoadPortTransferState.TransferBlocked, "Access mode cannot change during reservation or transfer."); port.Access = accessMode; }
         ChangedPort(portId);
     }
@@ -85,6 +87,7 @@ public sealed class CarrierManager : ICarrierManager
     public void WaitForSlotMapDecision(string carrierId, IEnumerable<CarrierSlotState> slotMap)
     {
         ArgumentNullException.ThrowIfNull(slotMap); var values = slotMap.ToArray();
+        if (values.Any(static value => !Enum.IsDefined(value))) throw new ArgumentException("Slot-map values must be defined.", nameof(slotMap));
         UpdateCarrier(carrierId, carrier => { Require(carrier.SlotMapStatus == CarrierSlotMapStatus.SlotMapNotRead, "Slot map is already read."); if (values.Length != carrier.Capacity) throw new ArgumentException("Slot-map length must equal carrier capacity.", nameof(slotMap)); carrier.SlotMap = (CarrierSlotState[])values.Clone(); carrier.SlotMapStatus = CarrierSlotMapStatus.WaitingForHost; });
     }
     /// <inheritdoc />

@@ -20,6 +20,7 @@ public sealed class Gem300EventJournal : IGem300EventJournal
     /// <inheritdoc />
     public Gem300DomainEvent Record(Gem300EventKind kind, string aggregateId)
     {
+        if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
         ArgumentException.ThrowIfNullOrWhiteSpace(aggregateId);
         lock (_gate)
         {
