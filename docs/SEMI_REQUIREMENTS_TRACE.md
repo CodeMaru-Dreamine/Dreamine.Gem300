@@ -1,80 +1,84 @@
 # GEM300 요구사항 추적표
 
-기준일: 2026-08-10
+기준일: 2026-08-12
 
-이 문서는 저장소 밖의 로컬 표준 원문을 읽기 전용으로 대조한 결과와 1차 구현
-경계를 기록한다. 표준 원문, 고객사명, 내부 사양 및 장문 인용은 포함하지 않는다.
+이 문서는 저장소 밖의 로컬 표준 원문을 읽기 전용으로 대조한 결과와 구현 경계를
+기록합니다. 표준 원문, 고객사명, 내부 사양 및 장문 인용은 포함하지 않습니다.
 
-증거 수준:
+## 판정 원칙
 
-- `Normative`: 보유한 SEMI 원문에서 확인
-- `Official Public`: SEMI 공식 Store의 공개 Revision·설명에서 확인
-- `Experimental`: 규범 개념을 조합한 자체 통합
-- `Blocked`: 필요한 규범 원문이 없어 구현 보류
+- 로컬에서 읽을 수 있는 base 원문은 해당 Revision의 도메인 개념에만 사용합니다.
+- 표준 wire는 해당 base와 `.1` mapping 원문을 모두 확인해야 구현할 수 있습니다.
+- 도메인 Unit 증거를 wire, 외부 상호운용 또는 현장 증거로 승격하지 않습니다.
+- 결과 상태는 `PASS`, `BLOCKED_STANDARD`, `NOT_RUN`, `NOT_APPLICABLE`,
+  `INTENTIONALLY_EXCLUDED`만 사용합니다.
 
-## Revision 기준
+## 규범 Eligibility
 
-| 표준 | 로컬 원문 | 공식 Store 대조 | 이번 적용 |
+| Capability | 확인한 로컬 근거 | 누락 근거 | 이번 판정 |
 |---|---|---|---|
-| SEMI E39 | E39-0703 (Reapproved 1109), 42쪽 | E39-1218 (Reapproved 0124) Current | 객체 식별·속성·기본 서비스의 도메인 경계 |
-| SEMI E39.1 | 없음 | E39.1이 E39 제품군에 포함됨 | Blocked — wire mapping 원문 필요 |
-| SEMI E40 | E40-0312, 36쪽 | E40-0226 Current | Process Job 상태·생명주기 |
-| SEMI E40.1 | 없음 | E40.1-0226 | Blocked — SECS-II mapping 원문 필요 |
-| SEMI E87 | E87-0312, 90쪽 | E87-0726 Current | Load Port·Carrier 상태·검증·Slot Map |
-| SEMI E87.1 | 없음 | E87.1-0726 | Blocked — SECS-II mapping 원문 필요 |
-| SEMI E90 | E90-0312, 44쪽 | E90-1125 Current | Substrate·Location·이력·처리 상태 |
-| SEMI E90.1 | 없음 | E90.1-1125 | Blocked — SECS-II mapping 원문 필요 |
-| SEMI E94 | E94-0314, 39쪽 | E94-0226 Current | Control Job·Queue·Process Job 순서 |
-| SEMI E94.1 | 없음 | E94.1-0226 | Blocked — SECS-II mapping 원문 필요 |
-| SEMI E116 | 없음 | E116-0324 Current | Blocked — 상태·속성·계산 규범 원문 필요 |
-| SEMI E116.1 | 없음 | E116.1-0623 (Reapproved 0324) 포함 | Blocked — SECS-II mapping 원문 필요 |
-| SEMI E84 | E84-0701 | 최신판 재대조 필요 | 외부 Carrier Handoff 연계; 이번 구현 제외 |
+| E39 / E39.1 | E39-0703 (Reapproved 1109) | E39.1 원문 | E39 도메인만 Revision-scoped `PASS`; wire `BLOCKED_STANDARD` |
+| E40 / E40.1 | E40-0312 | E40.1 원문 | E40 도메인만 Revision-scoped `PASS`; wire `BLOCKED_STANDARD` |
+| E87 / E87.1 | E87-0312 | E87.1 원문 | E87 도메인만 Revision-scoped `PASS`; wire `BLOCKED_STANDARD` |
+| E90 / E90.1 | E90-0312 | E90.1 원문 | E90 도메인만 Revision-scoped `PASS`; wire `BLOCKED_STANDARD` |
+| E94 / E94.1 | E94-0314 | E94.1 원문 | E94 도메인만 Revision-scoped `PASS`; wire `BLOCKED_STANDARD` |
+| E116 / E116.1 | 없음 | base와 `.1` 원문 | Equipment Performance domain/wire `BLOCKED_STANDARD`; 공개 API 없음 |
+| E42 | 없음 | 규범 원문 | Recipe 표준 주장 `BLOCKED_STANDARD`; generic Process Program을 E42로 승격하지 않음 |
+| E139 | 없음 | 규범 원문 | RaP 표준 주장 `BLOCKED_STANDARD`; placeholder API 없음 |
 
-로컬판과 현재판 사이의 변경점은 최신 원문을 확보하기 전까지 확인되지 않았다.
-따라서 아래 구현은 로컬 Revision 기반이며 현재판 적합성을 주장하지 않는다.
+로컬판과 현재판 사이의 변경점은 최신 원문 없이 확인할 수 없습니다. 따라서 base
+도메인 `PASS`를 현재판 적합성, 인증 또는 wire 지원으로 표현하지 않습니다.
 
-## 원문 대조 결과
+## 표준별 Domain/Wire/External Matrix
 
-| 모듈 | 로컬 근거 | 확인한 핵심 | 구현 경계 |
+| 표준 | Domain API | Standard Wire | Unit | Loopback | External | Field |
+|---|---|---|---|---|---|---|
+| E39 / E39.1 | `PASS` | `BLOCKED_STANDARD` | `PASS` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E40 / E40.1 | `PASS` | `BLOCKED_STANDARD` | `PASS` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E87 / E87.1 | `PASS` | `BLOCKED_STANDARD` | `PASS` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E90 / E90.1 | `PASS` | `BLOCKED_STANDARD` | `PASS` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E94 / E94.1 | `PASS` | `BLOCKED_STANDARD` | `PASS` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E116 / E116.1 | `BLOCKED_STANDARD` | `BLOCKED_STANDARD` | `NOT_APPLICABLE` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E42 | `BLOCKED_STANDARD` | `BLOCKED_STANDARD` | `NOT_APPLICABLE` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+| E139 | `BLOCKED_STANDARD` | `BLOCKED_STANDARD` | `NOT_APPLICABLE` | `BLOCKED_STANDARD` | `NOT_RUN` | `NOT_RUN` |
+
+`Loopback`의 `BLOCKED_STANDARD`는 wire 경로에만 적용됩니다. 메모리 내 QuickStart는
+도메인 실행 증거이며 wire loopback이 아닙니다.
+
+## Base 도메인 요구사항과 구현 추적
+
+| 도메인 요구사항 | 구현 경계 | 집중 자동화 증거 | 상태 |
 |---|---|---|---|
-| Object Services | E39 §4, §8, §9–§13 | ObjType/ObjID, 공개 속성, RO/RW, Get/Set/Action 개념 | 강타입 객체 키와 `SecsItem` 속성 저장소 |
-| Process Job | E40 §8.3, Figure 4, Table 1, §9 | QUEUED/POOLED부터 ACTIVE·POST ACTIVE 하위 상태, 생성·삭제 | 전체 1차 상태 전이와 불변 스냅샷 |
-| Load Port | E87 §9, §11–§13 | Transfer, Access Mode, Reservation, Association 독립 상태 | 포트별 직렬화된 상태 모델 |
-| Carrier | E87 §10.2–§10.7, Figure 2, Table 7 | ID/Slot Map/Accessing 병렬 상태, 객체 수명 | Carrier Aggregate와 검증·접근·반출 |
-| Substrate | E90 §8–§13, Figure 3 | Transport/Processing/Reading 병렬 상태, 위치·이력 | Substrate Aggregate와 위치 점유 일관성 |
-| Control Job | E94 §8–§10, Figure 2, Table 3 | QUEUED, SELECTED, WAITING, EXECUTING, PAUSED, COMPLETED | 순서화된 Process Job 연결과 상태 모델 |
-| Equipment Performance | 공식 공개 설명만 확인 | 상태·속성·시간 계산의 정확한 규범 부족 | Blocked — 공개 계약도 확정하지 않음 |
+| 객체 Identity와 typed attribute/action | `Gem300ObjectService` | Object/schema/action/timeout/generation tests | `PASS` |
+| Manager source-of-truth Projection | `RegisterProjection`, raw mutation/removal block, typed application action | Projection reservation and routing tests | `PASS` |
+| Load Port/Carrier 상태와 검증 | `CarrierManager` | 상태 전이, ID/Slot Map, 독립 Port tests | `PASS` |
+| Carrier/Substrate 원자 수락·반출 | shared `Gem300DomainGate`, coordinated ownership | partial-failure, clock-failure, direct-unload tests | `PASS` |
+| Substrate 위치·이력·처리 | `SubstrateTracker` | occupancy, injected time, terminal state, lease tests | `PASS` |
+| Process Job Recipe/Material 무결성 | `ProcessJobManager`, retained `ProcessProgram`, substrate leases | identity mismatch, delete-vs-claim, retained-reference tests | `PASS` |
+| Control Job 단독 소유와 직렬 실행 | `ControlJobManager`, central claim/execution stores | cross-manager ownership and concurrent coordinator tests | `PASS` |
+| Graph Identity | concrete manager composition checks | mismatched Substrate/Process manager fail-fast tests | `PASS` |
+| 실패·취소 정리 | `Gem300WorkflowCoordinator` | processor failure, cancellation, Stop/Abort non-success tests | `PASS` |
+| 이벤트 Identity·보존·비투척 게시 | `Gem300EventJournal`, shared `Gem300EventPublisher` | aggregate identity, drop/health, throwing journal tests | `PASS` |
+| 안정적 Snapshot | concrete manager snapshot/query members | ordinal ordering and immutable snapshot tests | `PASS` |
+| 명시적 Slot 연결 | `CarrierSubstrateSlotAssignment`, five-argument `CarrierArrivalPlan` | ambiguous-order rejection and query tests | `PASS` |
 
-## 요구사항과 테스트 추적
+집중 증거는 `Gem300ModelTests`, `CarrierManagerTests`, `SubstrateTrackerTests`,
+`JobManagerTests`, `ObjectAndEventTests`, `WorkflowTests`,
+`IntegrityRegressionTests`, `ExtendedIntegrityTests`, `ClosureRemediationTests`,
+`LatestAuditRemediationTests`에 연결됩니다. 최종 전체 Test Count는 중앙 제품화
+보고서의 fresh Release 검증에서만 기록합니다.
 
-| 요구사항 | 관련 API/구현 | 예정 테스트 | 상태 |
-|---|---|---|---|
-| ObjType 내 ObjID 고유성 | `Gem300ObjectService` | 중복/RO/RW/Action/timeout/동시 변경 | 도메인 구현·테스트; wire 제외 |
-| Load Port 독립 상태 | `CarrierManager` | 다중 포트/예약/접근 모드/잘못된 전이 | 구현·테스트 |
-| Carrier ID·Slot Map 검증 | `CarrierManager` | accept/reject/크기/병렬 상태 | 구현·테스트 |
-| Carrier 접근·완료·반출 | `CarrierManager` | 정상/stop/reject/removal/전송 방향 | 구현·테스트 |
-| Substrate 위치 점유·이력 | `SubstrateTracker` | 이동/중복 위치/주입 시간/lost | 구현·테스트 |
-| Substrate 처리 상태 | `SubstrateTracker` | complete/abort/stop/reject/skip | 구현·테스트 |
-| Process Job 생명주기 | `ProcessJobManager` | auto/manual/pause/stop/abort/delete/Recipe·Material | 구현·테스트 |
-| Control Job 생명주기 | `ControlJobManager` | queue/select/start/pause/순서/단독 소유/delete | 구현·테스트 |
-| 기능 간 이벤트 순서 | `IGem300EventJournal` | 단조 Sequence/주입 시간/용량 | 자체 관찰 경계 구현·테스트 |
-| Carrier→Job→반출 조정 | `Gem300WorkflowCoordinator` | 정상/검증 실패/처리 예외/취소/Abort 정리 | Experimental 구현·테스트 |
-| 표준 SECS-II 서비스 | 없음 | 없음 | Blocked — `.1` 원문 필요 |
-| Equipment Performance | 없음 | 없음 | Blocked — E116/E116.1 원문 필요 |
+## 호환성과 제외 범위
 
-## 명시적 제한
-
-- 상태 숫자, ACK, 서비스 메시지 구조를 추측하지 않는다.
-- 도메인 API 이름은 자체 구현 경계이며 표준 wire 서비스 이름의 완전한 구현을
-  뜻하지 않는다.
-- E84 handoff, 영속 복구, 연결 재동기화 및 장비별 Recipe/Material 정책은 이번
-  1차 범위 밖이다.
-- 고객·사내 자료는 테스트 아이디어에만 사용하며 Normative 근거로 사용하지 않았다.
-- 내부 통합 테스트는 실제 장비·독립 Simulator·인증 시험을 대체하지 않는다.
-
-## 1차 구현 검증 결과
-
-- `Dreamine.Gem300.Abstractions.Tests`: 9개 통과
-- `Dreamine.Gem300.Tests`: 33개 통과
-- Release 빌드: 감사 완료 시점의 결과를 최종 검증 절에 기록
-- 표준 `.1` wire 통합 및 독립 Simulator 시험: 수행하지 않음
+- 기존 공개 Interface와 Constructor는 유지하고 모델 및 concrete 진단 API를
+  additive로 추가했습니다.
+- 임의 external `ISubstrateTracker`/`IProcessJobManager` 조립은 원자적 소유권을
+  보장할 수 없어 기존 Signature에서 fail-fast하도록 동작을 강화했습니다.
+- Control Job Abort는 기존 `Completed` terminal을 유지합니다. 별도 Enum 값 추가는
+  breaking change이므로 현재 범위에서 발명하지 않습니다.
+- 영속 저장, 재시작/장애 복구, 분산 Transaction 및 프로세스 간 소유권은
+  `INTENTIONALLY_EXCLUDED`입니다.
+- E84 Handoff와 Host↔Equipment 재연결 동기화는 이 도메인 Gate에서
+  `INTENTIONALLY_EXCLUDED`입니다.
+- Standard wire fixture, TCP loopback, 독립 Simulator 및 실장비 시험은 mapping 원문
+  부재로 구현하지 않았으며 External/Field 결과는 `NOT_RUN`입니다.

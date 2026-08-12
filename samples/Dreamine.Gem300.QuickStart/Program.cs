@@ -1,36 +1,47 @@
+using Dreamine.Communication.Abstractions.Enums;
+using Dreamine.Gem.Abstractions.Interfaces;
 using Dreamine.Gem.Abstractions.Model;
 using Dreamine.Gem.Services;
 using Dreamine.Gem300;
 using Dreamine.Gem300.Abstractions.Model;
 using Dreamine.Gem300.Abstractions.States;
-using Dreamine.Gem300.Carrier;
-using Dreamine.Gem300.Infrastructure;
-using Dreamine.Gem300.Jobs;
-using Dreamine.Gem300.Substrate;
+using Dreamine.Secs.Abstractions.Interfaces;
 
-var events = new Gem300EventJournal();
-var carriers = new CarrierManager(events);
-var substrates = new SubstrateTracker(events);
 var programs = new GemProcessProgramService();
-var processJobs = new ProcessJobManager(substrates, programs, events);
-var controlJobs = new ControlJobManager(processJobs, events);
-var workflow = new Gem300WorkflowCoordinator(carriers, substrates, processJobs, controlJobs);
+var runtime = new Gem300Runtime(new SampleGemRuntime(), programs);
 
-carriers.RegisterLoadPort("PORT-1");
-carriers.SetInService("PORT-1");
+runtime.Carriers.RegisterLoadPort("PORT-1");
+runtime.Carriers.SetInService("PORT-1");
 programs.Put(new GemProcessProgram("RECIPE-1", [0x01]));
 
-workflow.AcceptCarrier(new CarrierArrivalPlan("PORT-1", "CARRIER-1",
+runtime.Workflow.AcceptCarrier(new CarrierArrivalPlan("PORT-1", "CARRIER-1",
     [CarrierSlotState.CorrectlyOccupied],
-    [new SubstrateArrivalPlan("SUBSTRATE-1", "PORT-1:SLOT-1", "OUTPUT-1")]));
-processJobs.Create(new ProcessJobDefinition("PJ-1", "RECIPE-1", ["SUBSTRATE-1"]));
-controlJobs.Create(new ControlJobDefinition("CJ-1", ["PJ-1"]));
+    [new SubstrateArrivalPlan("SUBSTRATE-1", "PORT-1:SLOT-1", "OUTPUT-1")],
+    [new CarrierSubstrateSlotAssignment(0, "SUBSTRATE-1")]));
+runtime.ProcessJobs.Create(new ProcessJobDefinition("PJ-1", "RECIPE-1", ["SUBSTRATE-1"]));
+runtime.ControlJobs.Create(new ControlJobDefinition("CJ-1", ["PJ-1"]));
 
-await workflow.ExecuteControlJobAsync("CJ-1", (job, _) =>
+await runtime.Workflow.ExecuteControlJobAsync("CJ-1", (job, _) =>
 {
-    foreach (var materialId in job.MaterialIds) substrates.Move(materialId, "OUTPUT-1");
+    foreach (var materialId in job.MaterialIds) runtime.Substrates.Move(materialId, "OUTPUT-1");
     return ValueTask.CompletedTask;
 });
-workflow.ReleaseCarrier("CARRIER-1");
+runtime.ControlJobs.Delete("CJ-1");
+runtime.ProcessJobs.Delete("PJ-1");
+runtime.Workflow.ReleaseCarrier("CARRIER-1");
 
-Console.WriteLine($"Workflow completed with {events.GetSnapshot().Count} domain event(s).");
+Console.WriteLine($"Workflow completed with {runtime.Events.GetSnapshot().Count} domain event(s).");
+
+file sealed class SampleGemRuntime : IGemRuntime
+{
+    public ISecsConnection SecsConnection { get; } = new SampleSecsConnection();
+}
+
+file sealed class SampleSecsConnection : ISecsConnection
+{
+    public string ProviderKey => "gem300-quickstart";
+    public ConnectionState State => ConnectionState.Disconnected;
+    public Task ConnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public Task DisconnectAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
+}

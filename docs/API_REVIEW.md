@@ -1,21 +1,56 @@
 # Public API review
 
-Review date: 2026-08-10. Baseline: 1.0.0 source. See [PUBLIC_API.md](PUBLIC_API.md).
+Review date: 2026-08-12. Baseline: 1.0.0 source. The generated surface is in
+[PUBLIC_API.md](PUBLIC_API.md).
 
 ## Result
 
-- Dependencies are acyclic and implementation types do not leak into abstraction interfaces.
-- Object-action parameter dictionaries are copied before asynchronous callbacks.
-- Load-port modes, slot states, substrate completion results, and event kinds reject undefined numeric enum values.
-- State stores use private synchronization and publish immutable snapshots. Event sequence allocation is monotonic within one process.
-- No public signature or binary surface changed; changes are non-breaking validation/race hardening.
+- Dependencies remain acyclic and implementation types do not leak through `Dreamine.Gem300.Abstractions` interfaces.
+- Existing public interfaces and constructors remain present. Public hardening members and models are additive.
+- Correctness rules are stricter where continuing with an arbitrary manager graph, ambiguous slot plan, mismatched recipe identity, or raw projection mutation could corrupt state.
+- The implemented base-standard domain boundary has focused automated evidence `PASS`; standard wire remains `BLOCKED_STANDARD`, and external/field evidence remains `NOT_RUN`.
 
-## Next-version proposals
+## Additive concrete surface
+
+| Area | Additive public surface | Purpose |
+|---|---|---|
+| Runtime | `CreateFromGemRuntime`, `EventPublisher`, `EventHealth` | Reuse the concrete GEM runtime's Process Program store and expose shared publisher health |
+| Object service | action-capacity constructor, `EventHealth`, `RegisterProjection`, `UnregisterProjection`, `UnregisterAction`, `GetObjectKeys` | Reserve projection keys, route typed application actions, manage action lifetime, and query stable identity snapshots |
+| Event infrastructure | `Gem300EventPublisher`, typed-object `Record`, bounded `GetSnapshot`, `GetHealth` | Preserve aggregate identity, expose drops, and keep observation failures non-throwing |
+| Carrier/Substrate/Jobs | `EventHealth`, stable aggregate snapshots, substrate lease-owner query | Expose stable in-process diagnostics without adding wire list/query semantics |
+| Process Job snapshot | retained `ProcessProgram` | Keep the Process Program accepted under the requested recipe identity |
+| Workflow | coordinated carrier IDs and explicit slot-assignment snapshots | Make the application-declared integration plan observable without inventing `.1` data |
+
+The abstraction package separately adds event-health/identity models and
+explicit slot-assignment models. Existing legacy constructors remain available.
+
+## Behavior tightening
+
+- Projected object keys are reserved before an aggregate is exposed. Reads use the manager projection; raw writes and raw removal are blocked; actions run through registered application handlers.
+- Writable generic attributes preserve their original recursive `SecsItem` schema. Action parameters are copied, bounded by timeout/cancellation, and detached safely when an object generation is removed.
+- Carrier/substrate acceptance and removal commit under one shared graph gate. Direct carrier unload cannot bypass coordinated ownership.
+- Process Job creation validates the returned Process Program identity and atomically acquires substrate reference leases. Control Job creation atomically claims Process Jobs.
+- Concrete manager graphs must share the same built-in Substrate and Process Job stores. Mismatches fail at composition rather than allowing split-brain ownership.
+- Existing `ProcessJobManager(ISubstrateTracker, ...)` and `ControlJobManager(IProcessJobManager, ...)` signatures remain, but arbitrary external implementations are no longer accepted because they cannot provide the required atomic integrity store. This is an intentional behavior compatibility tightening.
+- The interface-based workflow constructor remains. Safe carrier acceptance/release and workflow execution fail fast when the required built-in transaction/ownership graph is unavailable.
+- Processor-return, cancellation, Stop, and Abort paths are distinguished. A stopped or aborted Process Job cannot be promoted to successful substrate or Control Job completion.
+- All built-in modules share one non-throwing event publisher in `Gem300Runtime`; journal failure is visible through health without making an already committed mutation appear to fail.
+
+## Compatibility decision
+
+No existing interface member, public constructor, or enum value was removed.
+Additive concrete APIs were chosen instead of changing the published
+interfaces. The fail-fast constructor behavior above is accepted because the
+previous arbitrary-manager composition could not uphold the package's declared
+cross-module invariants.
+
+## Deferred breaking candidate
 
 | Classification | Proposal | Reason |
 |---|---|---|
-| Source- and binary-breaking | Add an explicit aborted terminal state for Control Jobs | Mapping abort to completed loses intent, but changing the enum is not safe in 1.0 hardening. |
-| Source- and binary-breaking | Prevent Process Job deletion through a repository-level ownership contract | The present independent managers cannot atomically validate cross-manager references. |
-| Source- and binary-breaking | Make workflow persistence and compensation explicit | The coordinator is in-memory and not transactional across module boundaries. |
+| Source- and binary-breaking | Add an explicit aborted terminal `ControlJobState` | The current base-revision model maps abort to `Completed`; adding a value changes exhaustive consumer logic |
 
-The workflow coordinator remains Experimental. Passing domain tests does not establish GEM300 wire interoperability.
+Persistence, restart recovery, and cross-process ownership are
+`INTENTIONALLY_EXCLUDED`. E39.1/E40.1/E87.1/E90.1/E94.1 wire APIs are
+`BLOCKED_STANDARD`; E116/E116.1, E42, and E139 claims are also
+`BLOCKED_STANDARD`.

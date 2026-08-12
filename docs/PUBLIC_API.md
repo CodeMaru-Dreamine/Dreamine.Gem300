@@ -4,7 +4,7 @@ Assembly: `Dreamine.Gem300`
 
 This inventory is generated from the compiled Release assembly. It is an audit artifact, not an additional compatibility promise.
 
-Exported types: **9**
+Exported types: **10**
 
 ## Types
 
@@ -12,7 +12,10 @@ Exported types: **9**
 
 - `CarrierManager(Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events)`
 - `Dreamine.Gem300.Abstractions.Model.CarrierSnapshot GetCarrier(System.String carrierId)`
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
 - `Dreamine.Gem300.Abstractions.Model.LoadPortSnapshot GetLoadPort(System.String portId)`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.CarrierSnapshot> GetCarriers()`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.LoadPortSnapshot> GetLoadPorts()`
 - `System.Void AcceptId(System.String carrierId)`
 - `System.Void AcceptSlotMap(System.String carrierId)`
 - `System.Void BeginAccess(System.String carrierId)`
@@ -42,9 +45,12 @@ Exported types: **9**
 ### `public sealed class Dreamine.Gem300.Gem300Runtime`
 
 - `Dreamine.Gem.Abstractions.Interfaces.IGemRuntime GemRuntime { get; }`
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
 - `Dreamine.Gem300.Carrier.CarrierManager Carriers { get; }`
+- `Dreamine.Gem300.Gem300Runtime CreateFromGemRuntime(Dreamine.Gem.GemRuntime gemRuntime, System.TimeProvider timeProvider, System.Int32 eventCapacity)`
 - `Dreamine.Gem300.Gem300WorkflowCoordinator Workflow { get; }`
 - `Dreamine.Gem300.Infrastructure.Gem300EventJournal Events { get; }`
+- `Dreamine.Gem300.Infrastructure.Gem300EventPublisher EventPublisher { get; }`
 - `Dreamine.Gem300.Jobs.ControlJobManager ControlJobs { get; }`
 - `Dreamine.Gem300.Jobs.ProcessJobManager ProcessJobs { get; }`
 - `Dreamine.Gem300.ObjectServices.Gem300ObjectService Objects { get; }`
@@ -54,20 +60,34 @@ Exported types: **9**
 ### `public sealed class Dreamine.Gem300.Gem300WorkflowCoordinator`
 
 - `Gem300WorkflowCoordinator(Dreamine.Gem300.Abstractions.Interfaces.ICarrierManager carriers, Dreamine.Gem300.Abstractions.Interfaces.ISubstrateTracker substrates, Dreamine.Gem300.Abstractions.Interfaces.IProcessJobManager processJobs, Dreamine.Gem300.Abstractions.Interfaces.IControlJobManager controlJobs)`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.CarrierSubstrateSlotAssignment> GetCoordinatedSlotAssignments(System.String carrierId)`
+- `System.Collections.Generic.IReadOnlyList<System.String> GetCoordinatedCarrierIds()`
 - `System.Threading.Tasks.Task ExecuteControlJobAsync(System.String controlJobId, System.Func<Dreamine.Gem300.Abstractions.Model.ProcessJobDefinition, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask> processor, System.Threading.CancellationToken cancellationToken)`
 - `System.Void AcceptCarrier(Dreamine.Gem300.Abstractions.Model.CarrierArrivalPlan plan)`
 - `System.Void ReleaseCarrier(System.String carrierId)`
 
 ### `public sealed class Dreamine.Gem300.Infrastructure.Gem300EventJournal`
 
+- `Dreamine.Gem300.Abstractions.Model.Gem300DomainEvent Record(Dreamine.Gem300.Abstractions.States.Gem300EventKind kind, Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey objectKey)`
 - `Dreamine.Gem300.Abstractions.Model.Gem300DomainEvent Record(Dreamine.Gem300.Abstractions.States.Gem300EventKind kind, System.String aggregateId)`
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventJournalHealth GetHealth()`
 - `Gem300EventJournal(System.TimeProvider timeProvider, System.Int32 capacity)`
 - `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.Gem300DomainEvent> GetSnapshot()`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.Gem300DomainEvent> GetSnapshot(System.Int64 afterSequence, System.Int32 maxCount)`
+
+### `public sealed class Dreamine.Gem300.Infrastructure.Gem300EventPublisher`
+
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth GetHealth()`
+- `Gem300EventPublisher(Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal journal, System.TimeProvider timeProvider)`
+- `System.Boolean TryRecord(Dreamine.Gem300.Abstractions.States.Gem300EventKind kind, Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey objectKey)`
+- `System.Boolean TryRecord(Dreamine.Gem300.Abstractions.States.Gem300EventKind kind, System.String aggregateId)`
 
 ### `public sealed class Dreamine.Gem300.Jobs.ControlJobManager`
 
 - `ControlJobManager(Dreamine.Gem300.Abstractions.Interfaces.IProcessJobManager processJobs, Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events)`
 - `Dreamine.Gem300.Abstractions.Model.ControlJobSnapshot Get(System.String id)`
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.ControlJobSnapshot> GetSnapshot()`
 - `System.Void Abort(System.String id)`
 - `System.Void Advance(System.String id)`
 - `System.Void Complete(System.String id)`
@@ -81,8 +101,10 @@ Exported types: **9**
 
 ### `public sealed class Dreamine.Gem300.Jobs.ProcessJobManager`
 
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
 - `Dreamine.Gem300.Abstractions.Model.ProcessJobSnapshot Get(System.String id)`
 - `ProcessJobManager(Dreamine.Gem300.Abstractions.Interfaces.ISubstrateTracker substrates, Dreamine.Gem.Abstractions.Interfaces.IGemProcessProgramService programs, Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events)`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.ProcessJobSnapshot> GetSnapshot()`
 - `System.Void Abort(System.String id)`
 - `System.Void Allocate(System.String id)`
 - `System.Void Complete(System.String id)`
@@ -99,21 +121,30 @@ Exported types: **9**
 
 ### `public sealed class Dreamine.Gem300.ObjectServices.Gem300ObjectService`
 
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
 - `Gem300ObjectService(Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events, System.TimeProvider timeProvider)`
+- `Gem300ObjectService(Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events, System.TimeProvider timeProvider, System.Int32 actionCapacity)`
 - `System.Boolean Remove(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key)`
-- `System.Boolean TryGetAttribute(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String name, Dreamine.Secs.Abstractions.Model.SecsItem& value)`
+- `System.Boolean TryGetAttribute(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String name, out Dreamine.Secs.Abstractions.Model.SecsItem value)`
 - `System.Boolean TrySetAttribute(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String name, Dreamine.Secs.Abstractions.Model.SecsItem value)`
+- `System.Boolean UnregisterAction(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String actionName)`
+- `System.Boolean UnregisterProjection(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key)`
 - `System.Collections.Generic.IReadOnlyDictionary<System.String, Dreamine.Secs.Abstractions.Model.SecsItem> GetAttributes(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key)`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey> GetObjectKeys()`
 - `System.Threading.Tasks.ValueTask<Dreamine.Gem.Abstractions.Model.GemCommandResult> ExecuteActionAsync(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String actionName, System.Collections.Generic.IReadOnlyDictionary<System.String, Dreamine.Secs.Abstractions.Model.SecsItem> parameters, System.TimeSpan timeout, System.Threading.CancellationToken cancellationToken)`
 - `System.Void Register(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.Collections.Generic.IEnumerable<Dreamine.Gem300.Abstractions.Model.Gem300AttributeDefinition> attributes)`
 - `System.Void RegisterAction(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.String actionName, System.Func<System.Collections.Generic.IReadOnlyDictionary<System.String, Dreamine.Secs.Abstractions.Model.SecsItem>, System.Threading.CancellationToken, System.Threading.Tasks.ValueTask<Dreamine.Gem.Abstractions.Model.GemCommandResult>> handler)`
+- `System.Void RegisterProjection(Dreamine.Gem300.Abstractions.Model.Gem300ObjectKey key, System.Func<System.Collections.Generic.IReadOnlyDictionary<System.String, Dreamine.Secs.Abstractions.Model.SecsItem>> projection)`
 
 ### `public sealed class Dreamine.Gem300.Substrate.SubstrateTracker`
 
+- `Dreamine.Gem300.Abstractions.Model.Gem300EventPublisherHealth EventHealth { get; }`
 - `Dreamine.Gem300.Abstractions.Model.SubstrateSnapshot Get(System.String substrateId)`
 - `Dreamine.Gem300.Abstractions.States.MaterialLocationState GetLocationState(System.String locationId)`
 - `SubstrateTracker(Dreamine.Gem300.Abstractions.Interfaces.IGem300EventJournal events, System.TimeProvider timeProvider)`
-- `System.Boolean TryGet(System.String substrateId, Dreamine.Gem300.Abstractions.Model.SubstrateSnapshot& substrate)`
+- `System.Boolean TryGet(System.String substrateId, out Dreamine.Gem300.Abstractions.Model.SubstrateSnapshot substrate)`
+- `System.Collections.Generic.IReadOnlyList<Dreamine.Gem300.Abstractions.Model.SubstrateSnapshot> GetSnapshot()`
+- `System.Collections.Generic.IReadOnlyList<System.String> GetLeaseOwners(System.String substrateId)`
 - `System.Void BeginProcessing(System.String substrateId)`
 - `System.Void CompleteProcessing(System.String substrateId, Dreamine.Gem300.Abstractions.States.SubstrateProcessingState result)`
 - `System.Void ConfirmId(System.String substrateId)`

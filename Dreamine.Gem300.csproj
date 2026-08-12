@@ -20,5 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Gem300.Abstractions\Dreamine.Gem300.Abstractions.csproj" />
     <ProjectReference Include="..\Gem.Abstractions\Dreamine.Gem.Abstractions.csproj" />
+    <ProjectReference Include="..\Gem\Dreamine.Gem.csproj" />
   </ItemGroup>
 </Project>

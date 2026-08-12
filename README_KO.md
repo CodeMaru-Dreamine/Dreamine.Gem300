@@ -1,51 +1,70 @@
 # Dreamine.Gem300
 
-Dreamine.Gem300은 독립적으로 테스트 가능한 GEM300 장비 도메인 모듈의 1차
-구현입니다.
+`Dreamine.Gem300`은 현대 .NET 애플리케이션을 위한 hardened 프로세스 내
+GEM300 도메인 경계를 구현합니다.
 
-[➡️ English Version](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/README.md)
+[➡️ English Version](README.md)
+
+## 증거 상태
+
+| 기능 | 상태 | 증거 |
+|---|---|---|
+| E39/E40/E87/E90/E94 메모리 내 도메인 경계 | `PASS` | 모델·Manager·Workflow·무결성·동시성·취소·회귀 집중 테스트 |
+| E39.1/E40.1/E87.1/E90.1/E94.1 표준 wire binding | `BLOCKED_STANDARD` | 필요한 mapping 원문을 로컬에서 확보하지 못함 |
+| E116/E116.1, E42 및 E139 주장 | `BLOCKED_STANDARD` | 필요한 규범 원문을 확보하지 못함 |
+| 외부 상호운용 및 현장 증거 | `NOT_RUN` | 독립 counterpart 또는 생산 장비 증거를 실행하지 않음 |
+| 영속 저장, 재시작 복구 및 프로세스 간 소유권 | `INTENTIONALLY_EXCLUDED` | 이 제품화 Gate는 프로세스 내 메모리 범위로 명시함 |
+
+`PASS`는 구현한 로컬 base Revision 도메인 경계에만 적용됩니다. 현재판 적합성,
+인증, 표준 wire 지원 또는 벤더 상호운용을 의미하지 않습니다.
 
 ## 구현한 도메인 경계
 
-- E39 방식 객체 키, 필수 `ObjType`/`ObjID`, 형식화된 RO/RW 속성 및 취소 가능한
-  Object Action
-- E87 Load Port Transfer, Access Mode, Reservation, Association, Carrier ID,
-  Slot Map 및 Carrier Access 상태
-- E90 Substrate Transport, Processing, ID Confirmation, 위치 점유 및 체류 이력
-- E40 Process Job 생명주기, Recipe/Material 존재 확인, Pause, Stop, Abort,
-  Complete 및 Delete
-- E94 직렬 Control Job Queue, 순서화된 Process Job 단독 소유, Select, 수동 Start,
-  Pause, Complete, Abort 및 Delete
-- 주입 시간과 제한 용량을 사용하는 도메인 이벤트 저널
-- 결정적 Abort 정리와 Cancellation 전파를 제공하는 Experimental
-  Carrier→Process→반출 Workflow
+- E39 방식 객체 Identity, 형식화된 RO/RW 속성, 취소 가능한 Action 및 애플리케이션 선언 Manager Projection
+- Projection Key 예약, Source-of-truth 읽기, raw mutation/removal 차단 및 typed application action routing
+- 원자적 Carrier/Substrate 수락·반출을 포함한 E87 Load Port와 Carrier 상태
+- E90 Substrate 위치 점유, 체류 이력, 처리 상태 및 참조 Lease
+- 보존 Process Program Identity와 Material Lease를 포함한 E40 Process Job 생명주기
+- 중앙 Process Job 소유권과 공유 Execution Claim을 포함한 E94 직렬 Control Job Queue
+- 애플리케이션이 명시하는 Carrier Slot↔Substrate 연결(순서나 위치 문자열을 Slot Index로 추론하지 않음)
+- 안정적 Snapshot과 공유 Graph Identity 검증(호환되지 않는 built-in Manager Graph는 fail-fast)
+- Journal Identity와 Drop/Retention Health 및 공유 비투척 Publisher를 제공하는 제한 용량 프로세스 내 Event Journal
+- 실패 정리에서 전진 가능한 상태 전이만 사용하는 Experimental Carrier→Process→반출 Coordinator(Stopped/Aborted Process Job을 성공 Substrate 또는 Control Job 완료로 승격하지 않음)
 
-각 기능 모듈은 `Dreamine.Gem300.Abstractions`의 분리된 인터페이스로 노출되며,
-서로의 내부 상태를 직접 변경하지 않습니다.
+## 안전한 조립
 
-## 표준과 제한
-
-이번 구현의 로컬 Normative 근거는 E39-0703(Reapproved 1109), E40-0312,
-E87-0312, E90-0312, E94-0314입니다. [요구사항 추적표](./docs/SEMI_REQUIREMENTS_TRACE.md)에
-최신 Revision을 별도로 기록했으므로 현재판 적합성·인증·벤더 상호운용성을 주장하지
-않습니다.
-
-E39.1, E40.1, E87.1, E90.1, E94.1 원문은 로컬에 없었습니다. 따라서 표준
-SECS-II wire mapping, ACK 숫자 및 서비스 오류 코드를 추측하지 않습니다.
-E116/E116.1 원문도 없어 Equipment Performance Tracking은 근거 없는 공개 API를
-만드는 대신 명시적으로 Blocked 처리했습니다. E84 Handoff, 영속 복구 및 연결 상태
-재동기화는 이번 1차 범위 밖입니다.
-
-## 조립 예시
+구체 `Dreamine.Gem.GemRuntime`을 사용할 때는 두 계층이 같은 Process Program
+Store를 사용하도록 해당 Runtime에서 GEM300을 생성합니다.
 
 ```csharp
-var gem300 = new Gem300Runtime(gemRuntime, gemRuntime.ProcessPrograms);
+var gem300 = Gem300Runtime.CreateFromGemRuntime(gemRuntime);
+gemRuntime.ProcessPrograms.Put(new GemProcessProgram("RECIPE-1", [0x01]));
+
 gem300.Carriers.RegisterLoadPort("PORT-1");
 gem300.Carriers.SetInService("PORT-1");
+gem300.Workflow.AcceptCarrier(new CarrierArrivalPlan(
+    "PORT-1",
+    "CARRIER-1",
+    [CarrierSlotState.CorrectlyOccupied],
+    [new SubstrateArrivalPlan("SUBSTRATE-1", "SOURCE-1", "DESTINATION-1")],
+    [new CarrierSubstrateSlotAssignment(0, "SUBSTRATE-1")]));
 ```
 
-예시의 `gemRuntime`은 `Dreamine.Gem.GemRuntime`을 가정하지만, Abstractions는
-공급자 중립 계약에만 의존합니다.
+호환 조립을 위해 기존
+`Gem300Runtime(IGemRuntime, IGemProcessProgramService, ...)` Constructor를
+유지했습니다. 호출자는 GEM 계층이 사용하는 것과 동일한 논리 Process Program
+Service를 전달해야 합니다. QuickStart는 한 Service Instance를 명시적으로 공유하며,
+생산용 구체 Runtime에서는 `CreateFromGemRuntime`을 권장합니다.
+
+명시적 Slot 연결과 Object Projection Key는 애플리케이션 통합 메타데이터입니다.
+발명한 `.1` wire mapping이 아닙니다.
+
+## 문서
+
+- [빠른 시작](QUICKSTART_KO.md)
+- [알려진 제한](KNOWN_LIMITATIONS.md)
+- [공개 API 검토](docs/API_REVIEW.md)
+- [SEMI 요구사항 추적](docs/SEMI_REQUIREMENTS_TRACE.md)
 
 ## 라이선스
 
