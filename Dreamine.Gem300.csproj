@@ -3,7 +3,7 @@
     <TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <AssemblyName>Dreamine.Gem300</AssemblyName><RootNamespace>Dreamine.Gem300</RootNamespace>
     <PackageId>Dreamine.Gem300</PackageId><Version>1.0.0</Version><Authors>Dreamine Core Team</Authors><Company>Dreamine</Company>
-    <Description>Dreamine implementation boundary for future independent GEM300 capability modules.</Description>
+    <Description>Dreamine GEM300 domain runtime with integrity-safe carrier, substrate, job, object, and event workflows.</Description>
     <PackageTags>dreamine;gem300;gem;runtime;equipment</PackageTags><PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/CodeMaru-Dreamine/Dreamine.Gem300</RepositoryUrl><Title>Dreamine.Gem300</Title>
     <Copyright>© 2026 Dreamine Core Team. All rights reserved.</Copyright>
