@@ -1,9 +1,20 @@
 # Dreamine.Gem300
 
+[![CI](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/actions/workflows/ci.yml)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=coverage)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300)
+
 `Dreamine.Gem300` implements a hardened, process-local GEM300 domain boundary
 for modern .NET applications.
 
-[➡️ 한국어 문서 보기](README_KO.md)
+[➡️ 한국어 문서 보기](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/README_KO.md)
+
+## Install and start
+
+```powershell
+dotnet add package Dreamine.Gem300
+```
+
+Choose this package for process-local carrier, substrate, Process Job, and Control Job workflows. It does **not** provide GEM300 `.1` wire mappings. Run the [package-first QuickStart](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/QUICKSTART.md); use `-p:UseLocalDreamineSources=true` only when validating a full source workspace.
 
 ## Evidence status
 
@@ -62,10 +73,10 @@ integration metadata. They are not invented `.1` wire mappings.
 
 ## Documentation
 
-- [Quick start](QUICKSTART.md)
-- [Known limitations](KNOWN_LIMITATIONS.md)
-- [Public API review](docs/API_REVIEW.md)
-- [SEMI requirements trace](docs/SEMI_REQUIREMENTS_TRACE.md)
+- [Quick start](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/QUICKSTART.md)
+- [Known limitations](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/KNOWN_LIMITATIONS.md)
+- [Public API review](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/docs/API_REVIEW.md)
+- [SEMI requirements trace](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/docs/SEMI_REQUIREMENTS_TRACE.md)
 
 ## License
 

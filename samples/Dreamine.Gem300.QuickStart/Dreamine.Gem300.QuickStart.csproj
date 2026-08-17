@@ -7,8 +7,11 @@
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseLocalDreamineSources)' == 'true'">
     <ProjectReference Include="..\..\Dreamine.Gem300.csproj" />
     <ProjectReference Include="..\..\..\Gem\Dreamine.Gem.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseLocalDreamineSources)' != 'true'">
+    <PackageReference Include="Dreamine.Gem300" />
   </ItemGroup>
 </Project>

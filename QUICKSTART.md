@@ -1,10 +1,12 @@
 # Quick start
 
-From the `Gem300` repository directory, run the buildable in-memory workflow:
+The checked-in sample references the published `Dreamine.Gem300` package by default, so it runs from a standalone clone. From the repository directory, run the buildable in-memory workflow:
 
 ```powershell
 dotnet run --project samples/Dreamine.Gem300.QuickStart
 ```
+
+Add `-p:UseLocalDreamineSources=true` only when validating the canonical full source workspace.
 
 The sample uses one shared `GemProcessProgramService` instance for recipe
 registration and `Gem300Runtime` consumption. It then:

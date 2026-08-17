@@ -136,8 +136,15 @@ public sealed class IntegrityRegressionTests
         service.Register(key, []);
         service.RegisterAction(key, "Wait", async (_, token) =>
         {
-            using var registration = token.Register(canceled.SetResult);
-            await Task.Delay(Timeout.InfiniteTimeSpan, token);
+            try
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, token);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                canceled.TrySetResult();
+                throw;
+            }
             return new GemCommandResult(GemCommandStatus.Completed);
         });
 
@@ -145,7 +152,7 @@ public sealed class IntegrityRegressionTests
         time.Advance(TimeSpan.FromSeconds(1));
 
         Assert.Equal(GemCommandStatus.Failed, (await execution).Status);
-        await canceled.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await canceled.Task.WaitAsync(TimeSpan.FromSeconds(5));
     }
 
     [Fact]

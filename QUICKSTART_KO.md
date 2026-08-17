@@ -1,10 +1,12 @@
 # 빠른 시작
 
-`Gem300` 저장소 디렉터리에서 빌드 가능한 메모리 기반 Workflow를 실행합니다.
+저장소의 샘플은 기본적으로 공개 `Dreamine.Gem300` 패키지를 참조하므로 독립 Clone에서 실행됩니다. 저장소 디렉터리에서 빌드 가능한 메모리 기반 Workflow를 실행합니다.
 
 ```powershell
 dotnet run --project samples/Dreamine.Gem300.QuickStart
 ```
+
+Canonical Full Source Workspace를 검증할 때만 `-p:UseLocalDreamineSources=true`를 추가하십시오.
 
 샘플은 Recipe 등록과 `Gem300Runtime` 소비에 하나의
 `GemProcessProgramService` Instance를 공유합니다. 이후 다음을 수행합니다.

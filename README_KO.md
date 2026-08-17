@@ -1,9 +1,20 @@
 # Dreamine.Gem300
 
+[![CI](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/actions/workflows/ci.yml)
+[![품질 게이트](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300) [![보안 등급](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300) [![테스트 커버리지](https://sonarcloud.io/api/project_badges/measure?project=CodeMaru-Dreamine_Dreamine.Gem300&metric=coverage)](https://sonarcloud.io/summary/new_code?id=CodeMaru-Dreamine_Dreamine.Gem300)
+
 `Dreamine.Gem300`은 현대 .NET 애플리케이션을 위한 hardened 프로세스 내
 GEM300 도메인 경계를 구현합니다.
 
-[➡️ English Version](README.md)
+[➡️ English Version](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/README.md)
+
+## 설치와 시작
+
+```powershell
+dotnet add package Dreamine.Gem300
+```
+
+프로세스 내 Carrier, Substrate, Process Job, Control Job Workflow가 필요할 때 선택합니다. GEM300 `.1` Wire Mapping은 제공하지 않습니다. [Package-first QuickStart](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/QUICKSTART_KO.md)를 실행하고, Full Source Workspace를 검증할 때만 `-p:UseLocalDreamineSources=true`를 사용하십시오.
 
 ## 증거 상태
 
@@ -61,10 +72,10 @@ Service를 전달해야 합니다. QuickStart는 한 Service Instance를 명시�
 
 ## 문서
 
-- [빠른 시작](QUICKSTART_KO.md)
-- [알려진 제한](KNOWN_LIMITATIONS.md)
-- [공개 API 검토](docs/API_REVIEW.md)
-- [SEMI 요구사항 추적](docs/SEMI_REQUIREMENTS_TRACE.md)
+- [빠른 시작](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/QUICKSTART_KO.md)
+- [알려진 제한](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/KNOWN_LIMITATIONS.md)
+- [공개 API 검토](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/docs/API_REVIEW.md)
+- [SEMI 요구사항 추적](https://github.com/CodeMaru-Dreamine/Dreamine.Gem300/blob/main/docs/SEMI_REQUIREMENTS_TRACE.md)
 
 ## 라이선스
 
