@@ -10,5 +10,6 @@ namespace Dreamine.Gem300;
 /// </summary>
 public sealed class Gem300AssemblyMarker
 {
-    private Gem300AssemblyMarker() { }
+    /// <summary>\if KO GEM300 어셈블리 표식을 만듭니다. \endif \if EN Creates a GEM300 assembly marker. \endif</summary>
+    public Gem300AssemblyMarker() { }
 }
