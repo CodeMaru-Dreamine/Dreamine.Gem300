@@ -104,7 +104,7 @@ public sealed class ProcessJobManager : IProcessJobManager, IProcessJobOwnership
             {
                 var entry = Job(id);
                 if (!_processJobOwners.TryGetValue(id, out var owner) || !StringComparer.Ordinal.Equals(owner, ownerId)) throw new InvalidOperationException("The control job does not own every referenced process job.");
-                if (!ProcessJobOwnershipStores.CanRelease(entry.State)) throw new InvalidOperationException("An active process job cannot be released by deleting its control job.");
+                if (!ProcessJobOwnershipPolicy.CanRelease(entry.State)) throw new InvalidOperationException("An active process job cannot be released by deleting its control job.");
             }
             foreach (var id in processJobIds) _processJobOwners.Remove(id);
         }
